@@ -1,0 +1,12 @@
+main {
+    min-height: 80vh;
+}
+
+.card-img-product {
+    height: 180px;
+    object-fit: scale-down;
+}
+
+h3 {
+    padding: 1rem 0;
+}
