@@ -1,5 +1,6 @@
 from base.views.user_views import (
     MyTokenObtainPairView,
+    updateUserProfile,
     getUserProfile,
     getUsers,
     registerUser
@@ -14,5 +15,6 @@ urlpatterns = [
     ),
     path("register/", registerUser, name="register"),
     path("profile/", getUserProfile, name="users-profile"),
+    path("profile/update/", updateUserProfile, name="users-profile-update"),
     path("", getUsers, name="users"),
 ]
