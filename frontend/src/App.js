@@ -11,6 +11,8 @@ import LoginScreen from './screens/LoginScreen.js';
 import RegisterScreen from './screens/RegisterScreen.js';
 import ProfileScreen from './screens/ProfileScreen.js';
 import ShippingScreen from './screens/ShippingScreen.js';
+import PaymentScreen from './screens/PaymentScreen.js';
+import PlaceOrderScreen from './screens/PlaceOrderScreen.js';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/register" component={ RegisterScreen } />
           <Route path="/profile" component={ ProfileScreen } />
           <Route path="/shipping" component={ ShippingScreen } />
+          <Route path="/payment" component={ PaymentScreen } />
+          <Route path="/placeorder" component={ PlaceOrderScreen } />
           <Route path="/product/:id" component={ ProductScreen } />
           <Route path="/cart/:id?" component={ CartScreen }/>
         </Container>
