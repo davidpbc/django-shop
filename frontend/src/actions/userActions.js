@@ -20,6 +20,8 @@ import {
   USER_UPDATE_PROFILE_FAIL,
 } from '../constants/userConstants.js';
 
+import { ORDER_LIST_MY_RESET } from '../constants/orderConstants.js'
+
 
 export const login = (email, password) => async (dispatch) => {
   try {
@@ -69,6 +71,10 @@ export const logout = () => (dispatch) => {
 
   dispatch({
     type: USER_DETAILS_RESET,
+  });
+
+  dispatch({
+    type: ORDER_LIST_MY_RESET,
   });
 }
 
