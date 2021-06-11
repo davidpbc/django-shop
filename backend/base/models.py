@@ -16,6 +16,7 @@ class Product(models.Model):
     image = models.ImageField(
         null=True,
         blank=True,
+        default="/placeholder.png",
     )
     brand = models.CharField(
         max_length=200,
