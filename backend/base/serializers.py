@@ -3,7 +3,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from base.models import Product, Order, OrderItem, ShippingAddress
+from base.models import Product, Order, OrderItem, ShippingAddress, Review
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,11 +63,25 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    reviews = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Product
         fields = '__all__'
+
+    def get_reviews(self, obj):
+        reviews = obj.reviews.all()
+        # if reviews:
+        serializer = ReviewSerializer(reviews, many=True)
+        return serializer.data
 
 
 class ShippingAddressSerializer(serializers.ModelSerializer):

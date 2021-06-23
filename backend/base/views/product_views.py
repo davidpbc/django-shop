@@ -1,13 +1,46 @@
-from base.models import Product
+from base.models import Product, Review
 from base.serializers import ProductSerializer
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import status
 
 
 @api_view(['GET'])
 def getProducts(request):
-    products = Product.objects.all()
+    query = request.query_params.get('keyword')
+    if query == None:
+        query = ''
+
+    products = Product.objects.filter(name__icontains=query)
+
+    page = request.query_params.get('page')
+    paginator = Paginator(products, 10)
+
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
+
+    if page == None:
+        page = 1
+
+    page = int(page)
+
+    serializer = ProductSerializer(products, many=True)
+    return Response({
+        "products": serializer.data,
+        "page": page,
+        "pages": paginator.num_pages,
+    })
+
+
+@api_view(['GET'])
+def getTopProducts(request):
+    products = Product.objects.filter(rating__gt=4).order_by('-rating')[0:5]
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
@@ -78,3 +111,45 @@ def uploadImage(request):
     product.save()
 
     return Response('Image was uploaded')
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def createProductReview(request, pk):
+    user = request.user
+    product = Product.objects.get(_id=pk)
+    data = request.data
+
+    # 1 - Review already exists
+    alreadyExists = product.reviews.filter(user=user).exists()
+    if alreadyExists:
+        content = {
+            'detail': 'Product already reviewed',
+        }
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    # 2 - No Rating or 0
+    elif data.get('rating', 0) <= 0 or data.get('rating', 0) > 5:
+        content = {
+            'detail': 'Please select a valid rating',
+        }
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+    # 3 - Create Review
+    else:
+        review = Review.objects.create(
+            user=user,
+            product=product,
+            name=user.first_name,
+            rating=data['rating'],
+            comment=data.get('comment')
+        )
+
+        reviews = product.reviews.all()
+        product.numReviews = len(reviews)
+
+        total = sum([x.rating for x in reviews])
+        product.rating = total / len(reviews)
+        product.save()
+
+        return Response('Review added')
